@@ -1,20 +1,22 @@
+
 import pytest
 from pages.tossplace_page import TossplacePage
 from utils.spass_handler import handle_Spass
 from selenium.common.exceptions import TimeoutException
 
+
 # 공통 로그인 시나리오 함수
-def login_flow(driver, phone, password, step):
+def login_flow(driver, phone, password, case):
     page = TossplacePage(driver)
     
-    if step == 1:
+    if case == 1:
         page.click_login_entry()
         page.click_phone_login()
         handle_Spass(driver)
         page.empty_space() # 키패드 제거
         page.input_info(phone, password)
     
-    elif (step == 2 or 3):
+    elif (case == 2 or 3):
         page.click_phone_login()
         page.input_info(phone, password)
     
@@ -24,7 +26,7 @@ def login_flow(driver, phone, password, step):
         
     page.click_login_button()
     handle_Spass(driver)
-    print(f"TC{step} 완료")
+    print(f"TC{case} 완료")
     return page
 
 
@@ -41,7 +43,11 @@ def login_flow(driver, phone, password, step):
 def test_login(driver, phone, password, expected_error, step):
     page = login_flow(driver, phone, password, step)
     
+    actual_error = page.get_error_message()
+    
+    print(f"[DEBUG] expected_error={expected_error}, actual_error={actual_error}")
+    
     if expected_error:
-        assert page.get_error_message() == expected_error
+        assert actual_error == expected_error
     else:
-        assert page.get_error_message() is None
+        assert actual_error is None
